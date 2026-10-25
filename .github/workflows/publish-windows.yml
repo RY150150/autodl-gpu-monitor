@@ -1,0 +1,39 @@
+name: Publish Windows secondary artifact (UNTESTED)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful Windows secondary build run ID
+        required: true
+        type: string
+      release_tag:
+        description: Existing release tag (including draft releases)
+        required: true
+        default: v1.0.0
+        type: string
+
+permissions: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download Windows build artifact (do not execute)
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-secondary-UNTESTED
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          path: package
+      - name: Verify checksum and attach secondary UNTESTED archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        working-directory: package
+        run: |
+          tr -d '\r' < AutoDLMonitor-Windows-secondary-UNTESTED.zip.sha256 | sha256sum --check -
+          gh release upload "$RELEASE_TAG" AutoDLMonitor-Windows-secondary-UNTESTED.zip AutoDLMonitor-Windows-secondary-UNTESTED.zip.sha256 --repo "$GITHUB_REPOSITORY"
