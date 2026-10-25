@@ -1,0 +1,36 @@
+name: Windows secondary build (UNTESTED)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-secondary:
+    name: Build only - no Windows desktop validation
+    runs-on: windows-latest
+    env:
+      PYTHONUTF8: "1"
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          architecture: "x64"
+      - name: Install build dependencies
+        run: python -m pip install -r requirements-build.txt
+      - name: Offline tests (no login or rental)
+        run: python -m unittest discover -s tests -v
+      - name: Build secondary Windows package
+        shell: pwsh
+        run: ./scripts/build-windows.ps1
+      - name: Upload secondary UNTESTED package
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-secondary-UNTESTED
+          path: |
+            dist/AutoDLMonitor-Windows-secondary-UNTESTED.zip
+            dist/AutoDLMonitor-Windows-secondary-UNTESTED.zip.sha256
+          if-no-files-found: error
