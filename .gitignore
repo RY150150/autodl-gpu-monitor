@@ -1,0 +1,13 @@
+.build/
+dist/
+build/
+.venv/
+__pycache__/
+*.pyc
+*.spec
+*.app/
+*.exe
+*.zip
+*.jsonl
+.DS_Store
+chrome-profile/
